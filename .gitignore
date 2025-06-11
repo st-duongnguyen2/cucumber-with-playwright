@@ -8,6 +8,8 @@ features
 @rerun.txt
 index.html
 
+.DS_Store
+
 # Environment
 .env
 .env.*
