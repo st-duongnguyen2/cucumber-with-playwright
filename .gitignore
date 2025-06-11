@@ -1,0 +1,14 @@
+node_modules/
+/test-results/
+/playwright-report/
+/playwright/.cache/
+cucumber-report.html
+assets
+features
+@rerun.txt
+index.html
+
+# Environment
+.env
+.env.*
+!.env.example
