@@ -6,7 +6,7 @@ cucumber-report.html
 assets
 @rerun.txt
 index.html
-auth/*
+src/helper/auth/*
 
 .DS_Store
 
