@@ -1,5 +1,5 @@
-import { BeforeAll, AfterAll, Before, After } from '@cucumber/cucumber';
-import {Browser, BrowserContext, Page} from '@playwright/test';
+import { BeforeAll, AfterAll, Before, After, Status } from '@cucumber/cucumber';
+import {Browser, BrowserContext, Page, devices} from '@playwright/test';
 import { fixture } from './pageFixture';
 import { invokeBrowser } from '../helper/browsers/browserManager';
 import { getEnv } from '../helper/env/env';
@@ -8,9 +8,29 @@ import { options } from '../helper/util/logger';
 import * as path from 'node:path';
 import * as fs from 'fs';
 
+const userTagRegex = /@user=(\w+)/;
+
+const deviceName = process.env.DEVICE || '';
+const device = deviceName ? devices[deviceName] : null;
+
 let browser: Browser;
 let context: BrowserContext;
 let page: Page;
+
+const setupContext = async function (role: string) {
+    if (role === 'guest') {
+        context = await browser.newContext({
+            ...device || {}
+        });
+    } else {
+        context = await browser.newContext({
+            ...(device || {}),
+            storageState: `src/helper/auth/${role}.json`
+        });
+    }
+    page = await context.newPage();
+    fixture.page = page;
+}
 
 BeforeAll(async function () {
     getEnv();
@@ -19,36 +39,22 @@ BeforeAll(async function () {
 
 Before( async function ({ pickle }) {
     const tags = pickle.tags.map(tag => tag.name);
-    let role: 'user' | 'guest' = 'guest';
-    if (tags.includes('@user')) role = 'user';
+    const userTag = tags.find(tag => userTagRegex.test(tag));
 
-    switch (role) {
-        case 'guest':
-            return setupContext('guest')
-        case 'user':
-            return setupContext('user')
-        default:
-            throw new Error('Cannot find role tag')
+    if (userTag) {
+        const match = userTag.match(userTagRegex);
+        const roleKey = match?.[1];
+        return setupContext(roleKey);
+    } else {
+        return setupContext('guest');
     }
 });
 
-const setupContext = async function (role: string) {
-    if (role === 'guest') {
-        context = await browser.newContext();
-    } else {
-        context = await browser.newContext({
-            storageState: `src/helper/auth/${role}.json`
-        });
-    }
-    page = await context.newPage();
-    fixture.page = page;
-}
-
 After(async function ({ pickle, result }) {
-   // if (result.status === Status.FAILED) {
+   if (result.status === Status.FAILED) {
         const img = await fixture.page.screenshot({ path: `./test-results/screenshots/${pickle.name}.png`, type: 'png' });
         this.attach(img, 'image/png');
-    //}
+   }
     // let videoPath: string;
     // let img: Buffer;
     // const path = `./test-results/trace/${pickle.id}.zip`;
@@ -58,8 +64,7 @@ After(async function ({ pickle, result }) {
     //     videoPath = await fixture.page.video().path();
     // }
     // await context.tracing.stop({ path: path });
-    // await fixture.page.close();
-    // await context.close();
+
     // if (result?.status == Status.PASSED) {
     //     await this.attach(
     //         img, 'image/png'
@@ -71,9 +76,11 @@ After(async function ({ pickle, result }) {
     //     const traceFileLink = `<a href='https://trace.playwright.dev/'>Open ${path}</a>`
     //     await this.attach(`Trace file: ${traceFileLink}`, 'text/html');
     // }
+    await fixture.page.close();
+    await context.close();
 });
 
 AfterAll(async function () {
-    await new Promise(resolve => {}) ;
-    // await browser.close();
+    //await new Promise(resolve => {}) ;
+    await browser.close();
 });

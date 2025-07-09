@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import {Locator, Page} from "@playwright/test";
 
 export default class PlaywrightWrapper {
 
@@ -10,12 +10,11 @@ export default class PlaywrightWrapper {
         });
     }
 
-    async waitAndClick(locator: string) {
-        const element = this.page.locator(locator);
-        await element.waitFor({
+    async waitAndClick(locator: Locator) {
+        await locator.waitFor({
             state: "visible"
         });
-        await element.click();
+        await locator.click();
     }
 
     async navigateTo(link: string) {

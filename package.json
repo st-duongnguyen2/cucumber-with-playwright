@@ -4,21 +4,22 @@
   "description": "Playwright Cucumber TS framework",
   "main": "index.js",
   "scripts": {
-    "debug": "ENV=prod PWDEBUG=1 DEBUG=pw:api cucumber-js --config=config/cucumber.js",
     "pretest": "npx ts-node src/helper/report/init.ts",
-    "test": "ENV=prod cucumber-js --config=config/cucumber.js ",
+
+    "test:run-dev": "HEADLESS=true ENV=dev cucumber-js --config=config/cucumber.js",
+    "test:open-dev": "HEADLESS=false ENV=dev cucumber-js --config=config/cucumber.js",
+    "debug-dev": "ENV=dev PWDEBUG=1 DEBUG=pw:api cucumber-js --config=config/cucumber.js --tags \"@only\"",
+
     "posttest": "npx ts-node src/helper/report/report.ts",
+
+    "test:mobile": "DEVICE='iPhone 13' HEADLESS=false ENV=dev cucumber-js --config=config/cucumber.js",
+
     "test:failed": "cucumber-js -p rerun @rerun.txt",
-    "test:feature": "ENV=prod FORCE_COLOR=0 cucumber-js --config=config/cucumber.js",
-    "generate-auth": "npx ts-node src/helper/util/generate-auth.ts"
+    "test:feature": "ENV=dev FORCE_COLOR=0 cucumber-js --config=config/cucumber.js",
+
+    "generate-auth:dev": "npx ts-node src/helper/util/generate-auth.ts dev",
+    "generate-auth:dev-lotteryUser": "npx ts-node src/helper/util/generate-auth.ts dev lotteryUser"
   },
-  "keywords": [
-    "cucumber",
-    "cucumber - TS",
-    "playwright-cucumber"
-  ],
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "@cucumber/cucumber": "^9.0.1",
     "@playwright/test": "1.35.0",
