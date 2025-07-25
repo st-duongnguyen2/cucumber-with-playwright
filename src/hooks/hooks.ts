@@ -58,8 +58,8 @@ After(async function ({ pickle, result }) {
     //     videoPath = await fixture.page.video().path();
     // }
     // await context.tracing.stop({ path: path });
-    // await fixture.page.close();
-    // await context.close();
+    await fixture.page.close();
+    await context.close();
     // if (result?.status == Status.PASSED) {
     //     await this.attach(
     //         img, 'image/png'
@@ -74,6 +74,6 @@ After(async function ({ pickle, result }) {
 });
 
 AfterAll(async function () {
-    await new Promise(resolve => {}) ;
-    // await browser.close();
+    //await new Promise(resolve => {}) ;
+    await browser.close();
 });

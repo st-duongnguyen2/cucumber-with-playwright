@@ -4,11 +4,12 @@ node_modules/
 /playwright/.cache/
 cucumber-report.html
 assets
-features
 @rerun.txt
 index.html
+src/helper/auth/*
 
 .DS_Store
+.idea
 
 # Environment
 .env
